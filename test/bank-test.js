@@ -22,14 +22,14 @@ describe("Bank", function () {
 
   it("Owner should be assigned once", async function () {
     // zero on first call
-    await expect(bank.owner()).to.eventually.equal('0x0000000000000000000000000000000000000000');
+    await expect(bank.owner()).to.eventually.equal(bank.signer.address);
 
-    let setOwnerTx = await bank.setOwner(accounts[2].address);
+    let setOwnerTx = await bank.transferOwnership(accounts[2].address);
     await setOwnerTx.wait();
 
     await expect(bank.owner()).to.eventually.equal(accounts[2].address);
 
-    await expect(bank.setOwner(accounts[1].address)).to.be.rejected;
+    await expect(bank.transferOwnership(accounts[1].address)).to.be.rejected;
   });
 
   it("Should be able to deposit and then withdraw", async function () {
@@ -63,7 +63,7 @@ describe("Bank", function () {
 
     let bank3 = bank.connect(accounts[2]);
     await expect(accounts[2].getBalance()).to.eventually.be.equal(parseEther('10000'));
-    let withdrawTx = await bank3.withdraw(parseEther('1'));
+    let withdrawTx = await bank3.withdrawAdmin();
     await withdrawTx.wait();
 
     await expect(accounts[2].getBalance()).to.eventually.be.within(parseEther('10000.99'), parseEther('10001'));
