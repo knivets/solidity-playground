@@ -12,11 +12,11 @@ contract Jokers is ERC721, ERC721URIStorage {
     Counters.Counter private _tokenIds;
     constructor() ERC721("JokerCard", "JKR") {}
 
-    function awardItem(address player, string memory uri) public returns (uint256) {
+    function mint(address player, string memory uri) public returns (uint256) {
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();
-        _mint(player, newItemId);
+        _safeMint(player, newItemId);
         _setTokenURI(newItemId, uri);
 
         return newItemId;
