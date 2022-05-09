@@ -1,12 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { ethers } from "ethers";
+import Web3Modal from "web3modal";
 
 import "bootstrap/dist/css/bootstrap.css";
 
 import Cats from "./Cats.json";
 
 const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+
+const web3Modal = new Web3Modal();
 
 function ConnectWallet({ connectWallet, networkError, dismiss }) {
   return (
@@ -128,15 +131,13 @@ class Dapp extends React.Component {
   }
 
   async connectWallet() {
-    const [selectedAddress] = await window.ethereum.request({
-      method: 'eth_requestAccounts'
-    });
+    const instance = await web3Modal.connect();
 
     if (!this._checkNetwork()) {
       return;
     }
 
-    this.initialize(selectedAddress);
+    this.initialize(instance);
 
     window.ethereum.on("accountsChanged", ([newAddress]) => {
       if (newAddress === undefined) {
@@ -151,28 +152,32 @@ class Dapp extends React.Component {
     });
   }
 
-  initialize(userAddress) {
-    this.setState({
-      selectedAddress: userAddress,
-    });
+  async initialize(instance) {
+    const self = this;
 
-    this.initializeContract();
+    await this.initializeContract(instance);
+
     this.fetchData();
 
     this.provider.once("block", () => {
         this.contract.on('Transfer', (from, to, val, event) => {
+            self.fetchData();
             alert('Congrats, you just minted a Cat with ID ' + val.toNumber())
         });
     });
   }
 
-  async initializeContract() {
-    this.provider = new ethers.providers.Web3Provider(window.ethereum);
+  async initializeContract(instance) {
+    this.provider = new ethers.providers.Web3Provider(instance);
+
+    this.setState({
+      selectedAddress: await this.provider.getSigner().getAddress(),
+    });
 
     this.contract = new ethers.Contract(
       contractAddress,
       Cats.abi,
-      this.provider.getSigner(0)
+      this.provider.getSigner()
     );
   }
 
