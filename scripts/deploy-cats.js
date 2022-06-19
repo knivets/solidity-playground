@@ -15,7 +15,7 @@ async function main() {
 
   // We get the contract to deploy
   const Cats = await hre.ethers.getContractFactory("Cats");
-  const cats = await Cats.deploy();
+  const cats = await Cats.deploy('Cats', 'CTS', 'https://example.com/');
 
   await cats.deployed();
 
