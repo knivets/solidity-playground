@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 
 import Cats from './Cats.json';
 
-const CATS_NFT = '0xf5059a5D33d5853360D16C683c16e67980206f36';
+const CATS_NFT = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 const HARDHAT_NETWORK_ID = '31337';
 
 const App = (props) => {
@@ -39,11 +39,15 @@ const App = (props) => {
 
   const fetchData = useCallback(async () => {
     if(!contract) return
-    const name = await contract.name();
-    const balance = await contract.balanceOf(address);
+    try {
+      const name = await contract.name();
+      const balance = await contract.balanceOf(address);
 
-    setTokenName(name);
-    setBalance(balance);
+      setTokenName(name);
+      setBalance(balance);
+    } catch (e) {
+      setError('Something went wrong, are you sure you deployed a contract?')
+    }
   }, [address, contract])
 
   useEffect(() => {
@@ -64,7 +68,8 @@ const App = (props) => {
       const tx = await contract.mint();
       receipt = await tx.wait();
     } catch (e) {
-      setMsg(`Error: ${e.reason}`)
+      const _error = e.reason || e.message;
+      setMsg(`Error: ${_error}`)
       return;
     }
 
@@ -133,7 +138,15 @@ const App = (props) => {
   }
 
   if (!tokenName || !balance) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        {error ? (
+          <div>{error}</div>
+        ) : (
+          <div>Loading...</div>
+        )}
+      </>
+    );
   }
 
   return (
