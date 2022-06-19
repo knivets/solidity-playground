@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom/client';
 import { ethers } from 'ethers';
 
 import Cats from './Cats.json';
@@ -166,9 +166,9 @@ const App = (props) => {
   );
 }
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );
