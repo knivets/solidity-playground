@@ -15,14 +15,13 @@ const App = (props) => {
   const [address, setAddress] = useState(null);
   const [balance, setBalance] = useState(0);
   const [msg, setMsg] = useState(null);
-  const [error, setError] = useState(null);
 
   const checkNetwork = () => {
     if (window.ethereum.networkVersion === HARDHAT_NETWORK_ID) {
       return true;
     }
 
-    setError('Please connect Metamask to Localhost:8545');
+    setMsg('Please connect Metamask to Localhost:8545');
 
     return false;
   }
@@ -46,7 +45,7 @@ const App = (props) => {
       setTokenName(name);
       setBalance(balance);
     } catch (e) {
-      setError('Something went wrong, are you sure you deployed a contract?')
+      setMsg('Something went wrong, are you sure you deployed a contract?')
     }
   }, [address, contract])
 
@@ -58,7 +57,6 @@ const App = (props) => {
     setAddress(null)
     setTokenName(null)
     setBalance(0)
-    setError(null)
     setMsg(null)
   }
 
@@ -68,8 +66,8 @@ const App = (props) => {
       const tx = await contract.mint();
       receipt = await tx.wait();
     } catch (e) {
-      const _error = e.reason || e.message;
-      setMsg(`Error: ${_error}`)
+      const error = e.reason || e.message;
+      setMsg(`Error: ${error}`)
       return;
     }
 
@@ -124,8 +122,8 @@ const App = (props) => {
   if (!address) {
     return (
       <div>
-        {error && (
-          <div>{error}</div>
+        {msg && (
+          <div>{msg}</div>
         )}
         <div>
           <p>Please connect to your wallet.</p>
@@ -140,8 +138,8 @@ const App = (props) => {
   if (!tokenName || !balance) {
     return (
       <>
-        {error ? (
-          <div>{error}</div>
+        {msg ? (
+          <div>{msg}</div>
         ) : (
           <div>Loading...</div>
         )}
